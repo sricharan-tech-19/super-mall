@@ -1,7 +1,9 @@
 # Super Mall Web Application
 
 ## Project Overview
- live link: https://super-mall-tau.vercel.app/
+
+live link: https://super-mall-tau.vercel.app/
+ 
 **Project Title:** Super Mall Web Application - Manage Shop's Offer, Products & Location
 
 **Technologies:** HTML, CSS, JavaScript, Firebase
