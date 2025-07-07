@@ -295,9 +295,9 @@
 
     <!-- Shop Modal -->
     <div id="shopModal" class="fixed inset-0 z-50 hidden">
-        <div class="modal-backdrop absolute inset-0" onclick="closeShopModal()"></div>
+        <div class="modal-backdrop absolute inset-0 bg-black bg-opacity-50" onclick="closeShopModal()"></div>
         <div class="flex items-center justify-center min-h-screen p-4">
-            <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
+            <div class="bg-white rounded-lg shadow-xl max-w-md w-full relative z-10">
                 <div class="px-6 py-4 border-b border-gray-200">
                     <h3 class="text-lg font-medium text-gray-900">Add New Shop</h3>
                 </div>
@@ -357,9 +357,9 @@
 
     <!-- Offer Modal -->
     <div id="offerModal" class="fixed inset-0 z-50 hidden">
-        <div class="modal-backdrop absolute inset-0" onclick="closeOfferModal()"></div>
+        <div class="modal-backdrop absolute inset-0 bg-black bg-opacity-50" onclick="closeOfferModal()"></div>
         <div class="flex items-center justify-center min-h-screen p-4">
-            <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
+            <div class="bg-white rounded-lg shadow-xl max-w-md w-full relative z-10">
                 <div class="px-6 py-4 border-b border-gray-200">
                     <h3 class="text-lg font-medium text-gray-900">Create New Offer</h3>
                 </div>
@@ -404,9 +404,9 @@
 
     <!-- Category Modal -->
     <div id="categoryModal" class="fixed inset-0 z-50 hidden">
-        <div class="modal-backdrop absolute inset-0" onclick="closeCategoryModal()"></div>
+        <div class="modal-backdrop absolute inset-0 bg-black bg-opacity-50" onclick="closeCategoryModal()"></div>
         <div class="flex items-center justify-center min-h-screen p-4">
-            <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
+            <div class="bg-white rounded-lg shadow-xl max-w-md w-full relative z-10">
                 <div class="px-6 py-4 border-b border-gray-200">
                     <h3 class="text-lg font-medium text-gray-900">Add New Category</h3>
                 </div>
@@ -516,8 +516,15 @@
             // Update active nav item
             document.querySelectorAll('.nav-item').forEach(item => {
                 item.classList.remove('bg-blue-100', 'text-blue-700');
+                item.classList.add('text-gray-700');
             });
-            event.target.classList.add('bg-blue-100', 'text-blue-700');
+            
+            // Find and activate the clicked nav item
+            const clickedButton = event?.target?.closest('button');
+            if (clickedButton) {
+                clickedButton.classList.remove('text-gray-700');
+                clickedButton.classList.add('bg-blue-100', 'text-blue-700');
+            }
 
             // Load section-specific data
             if (section === 'shops') {
@@ -566,22 +573,30 @@
         window.saveShop = async function() {
             console.log('🏪 Saving new shop');
             
-            const shopData = {
-                name: document.getElementById('shopName').value,
-                category: document.getElementById('shopCategory').value,
-                floor: parseInt(document.getElementById('shopFloor').value),
-                location: document.getElementById('shopLocation').value,
-                description: document.getElementById('shopDescription').value,
-                contactInfo: {
-                    phone: document.getElementById('shopPhone').value,
-                    email: document.getElementById('shopEmail').value
-                },
-                isActive: true,
-                createdAt: new Date(),
-                updatedAt: new Date()
-            };
-
             try {
+                const shopData = {
+                    name: document.getElementById('shopName').value,
+                    category: document.getElementById('shopCategory').value,
+                    floor: parseInt(document.getElementById('shopFloor').value),
+                    location: document.getElementById('shopLocation').value,
+                    description: document.getElementById('shopDescription').value,
+                    contactInfo: {
+                        phone: document.getElementById('shopPhone').value,
+                        email: document.getElementById('shopEmail').value
+                    },
+                    isActive: true,
+                    createdAt: new Date(),
+                    updatedAt: new Date()
+                };
+
+                // Validate required fields
+                if (!shopData.name || !shopData.category || shopData.floor === undefined || !shopData.location || !shopData.contactInfo.phone || !shopData.contactInfo.email) {
+                    if (window.Utils) {
+                        window.Utils.showNotification('Please fill in all required fields.', 'error');
+                    }
+                    return;
+                }
+
                 await addDoc(collection(db, 'shops'), shopData);
                 closeShopModal();
                 loadShops();
@@ -659,20 +674,28 @@
         window.saveOffer = async function() {
             console.log('🎯 Saving new offer');
             
-            const offerData = {
-                title: document.getElementById('offerTitle').value,
-                shopId: document.getElementById('offerShop').value,
-                discountType: document.getElementById('offerDiscountType').value,
-                discountValue: parseFloat(document.getElementById('offerDiscountValue').value),
-                endDate: new Date(document.getElementById('offerEndDate').value),
-                description: document.getElementById('offerDescription').value,
-                isActive: true,
-                startDate: new Date(),
-                createdAt: new Date(),
-                updatedAt: new Date()
-            };
-
             try {
+                const offerData = {
+                    title: document.getElementById('offerTitle').value,
+                    shopId: document.getElementById('offerShop').value,
+                    discountType: document.getElementById('offerDiscountType').value,
+                    discountValue: parseFloat(document.getElementById('offerDiscountValue').value),
+                    endDate: new Date(document.getElementById('offerEndDate').value),
+                    description: document.getElementById('offerDescription').value,
+                    isActive: true,
+                    startDate: new Date(),
+                    createdAt: new Date(),
+                    updatedAt: new Date()
+                };
+
+                // Validate required fields
+                if (!offerData.title || !offerData.shopId || !offerData.discountValue || !offerData.endDate) {
+                    if (window.Utils) {
+                        window.Utils.showNotification('Please fill in all required fields.', 'error');
+                    }
+                    return;
+                }
+
                 await addDoc(collection(db, 'offers'), offerData);
                 closeOfferModal();
                 loadOffers();
@@ -739,15 +762,23 @@
         window.saveCategory = async function() {
             console.log('📂 Saving new category');
             
-            const categoryData = {
-                name: document.getElementById('categoryName').value,
-                description: document.getElementById('categoryDescription').value,
-                isActive: true,
-                createdAt: new Date(),
-                updatedAt: new Date()
-            };
-
             try {
+                const categoryData = {
+                    name: document.getElementById('categoryName').value,
+                    description: document.getElementById('categoryDescription').value,
+                    isActive: true,
+                    createdAt: new Date(),
+                    updatedAt: new Date()
+                };
+
+                // Validate required fields
+                if (!categoryData.name) {
+                    if (window.Utils) {
+                        window.Utils.showNotification('Please enter a category name.', 'error');
+                    }
+                    return;
+                }
+
                 await addDoc(collection(db, 'categories'), categoryData);
                 closeCategoryModal();
                 loadCategories();
