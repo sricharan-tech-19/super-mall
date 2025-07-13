@@ -116,28 +116,6 @@ When user logs in, they can access:
 - Internet connection for Firebase services
 - Firebase project with Authentication and Firestore enabled
 
-### Local Development
-1. Clone or download the project files
-2. Update Firebase configuration in `js/firebase-config.js`
-3. Open `index.html` in a web browser or run a local server:
-   ```bash
-   # Using Python
-   python -m http.server 8000
-   
-   # Using Node.js
-   npx serve .
-   
-   # Using PHP
-   php -S localhost:8000
-   ```
-
-### Firebase Configuration
-1. Create a Firebase project at [Firebase Console](https://console.firebase.google.com)
-2. Enable Authentication with Email/Password and Google providers
-3. Create a Firestore database
-4. Update the Firebase config in `js/firebase-config.js`
-
-## Database Schema
 
 ### Users Collection
 ```javascript
@@ -237,9 +215,6 @@ When user logs in, they can access:
 4. Test thoroughly
 5. Submit a pull request
 
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
 
 ## Contact Information
 
