@@ -285,6 +285,10 @@
     <script type="module">
         console.log('👤 USER DASHBOARD - INITIALIZING...');
 
+        // Global variables
+        let currentUser = null;
+        let mobileNavManager = null;
+
         // Wait for Firebase to be ready
         await window.FirebaseService.waitForInit();
         
@@ -303,7 +307,6 @@
             where
         } = await import('https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js');
 
-        let currentUser = null;
         let allShops = [];
         let allOffers = [];
         let filteredShops = [];
