@@ -181,7 +181,240 @@ class Utils {
     }
 }
 
+// Mobile Navigation Manager
+class MobileNavManager {
+    constructor() {
+        this.lastScrollY = 0;
+        this.isNavVisible = true;
+        this.isMobileMenuOpen = false;
+        this.scrollThreshold = 10;
+        this.init();
+    }
+
+    init() {
+        if (this.isMobile()) {
+            this.setupMobileNav();
+            this.setupScrollListener();
+            document.body.classList.add('mobile-nav-active');
+        }
+    }
+
+    isMobile() {
+        return window.innerWidth <= 768;
+    }
+
+    setupMobileNav() {
+        // Add mobile navigation elements to existing navbars
+        const navbars = document.querySelectorAll('.glass-effect nav, nav.glass-effect');
+        
+        navbars.forEach(navbar => {
+            if (!navbar.querySelector('.mobile-menu-toggle')) {
+                this.addMobileNavElements(navbar);
+            }
+        });
+    }
+
+    addMobileNavElements(navbar) {
+        // Create mobile menu toggle button
+        const toggleButton = document.createElement('button');
+        toggleButton.className = 'mobile-menu-toggle';
+        toggleButton.innerHTML = `
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+        `;
+        toggleButton.addEventListener('click', () => this.toggleMobileMenu());
+
+        // Find the navbar container and add toggle button
+        const navContainer = navbar.querySelector('.flex.justify-between, .flex');
+        if (navContainer) {
+            navContainer.appendChild(toggleButton);
+        }
+
+        // Create mobile navigation menu
+        const mobileMenu = document.createElement('div');
+        mobileMenu.className = 'mobile-nav-menu';
+        mobileMenu.id = 'mobileNavMenu';
+        
+        // Add navigation items based on current page
+        const navItems = this.getMobileNavItems();
+        mobileMenu.innerHTML = navItems.map(item => 
+            `<a href="${item.href}" class="mobile-nav-item">${item.text}</a>`
+        ).join('');
+
+        // Insert mobile menu after navbar
+        navbar.parentNode.insertBefore(mobileMenu, navbar.nextSibling);
+    }
+
+    getMobileNavItems() {
+        const currentPage = window.location.pathname;
+        const currentUser = this.getCurrentUser();
+        
+        let navItems = [
+            { href: 'index.html', text: '🏠 Home' }
+        ];
+
+        if (currentUser) {
+            if (currentUser.role === 'admin') {
+                navItems.push(
+                    { href: 'admin-dashboard.html', text: '👑 Admin Dashboard' },
+                    { href: '#', text: '🏪 Manage Shops', onclick: 'showSection("manageShops")' },
+                    { href: '#', text: '🎯 Manage Offers', onclick: 'showSection("manageOffers")' },
+                    { href: '#', text: '📂 Manage Categories', onclick: 'showSection("manageCategories")' }
+                );
+            } else {
+                navItems.push(
+                    { href: 'user-dashboard.html', text: '👤 User Dashboard' },
+                    { href: '#', text: '🏪 Browse Shops', onclick: 'showSection("browseShops")' },
+                    { href: '#', text: '🎯 Special Offers', onclick: 'showSection("specialOffers")' },
+                    { href: '#', text: '📊 Compare Products', onclick: 'showSection("compareProducts")' }
+                );
+            }
+            navItems.push({ href: '#', text: '🚪 Logout', onclick: 'logout()' });
+        } else {
+            navItems.push(
+                { href: 'login.html', text: '🔐 Login' },
+                { href: 'register.html', text: '📝 Register' }
+            );
+        }
+
+        return navItems;
+    }
+
+    getCurrentUser() {
+        try {
+            const userData = localStorage.getItem('currentUser');
+            return userData ? JSON.parse(userData) : null;
+        } catch (error) {
+            return null;
+        }
+    }
+
+    setupScrollListener() {
+        let ticking = false;
+
+        const handleScroll = () => {
+            if (!ticking) {
+                requestAnimationFrame(() => {
+                    this.handleScrollDirection();
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        };
+
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        window.addEventListener('resize', () => {
+            if (!this.isMobile()) {
+                this.showNavbar();
+                this.closeMobileMenu();
+                document.body.classList.remove('mobile-nav-active');
+            } else {
+                document.body.classList.add('mobile-nav-active');
+            }
+        });
+    }
+
+    handleScrollDirection() {
+        const currentScrollY = window.scrollY;
+        
+        if (Math.abs(currentScrollY - this.lastScrollY) < this.scrollThreshold) {
+            return;
+        }
+
+        if (currentScrollY > this.lastScrollY && currentScrollY > 100) {
+            // Scrolling down - hide navbar
+            this.hideNavbar();
+        } else {
+            // Scrolling up - show navbar
+            this.showNavbar();
+        }
+
+        this.lastScrollY = currentScrollY;
+    }
+
+    hideNavbar() {
+        if (this.isNavVisible) {
+            const navbars = document.querySelectorAll('nav.glass-effect, .glass-effect nav');
+            navbars.forEach(navbar => {
+                navbar.classList.add('hidden');
+                navbar.classList.remove('visible');
+            });
+            this.isNavVisible = false;
+            this.closeMobileMenu();
+        }
+    }
+
+    showNavbar() {
+        if (!this.isNavVisible) {
+            const navbars = document.querySelectorAll('nav.glass-effect, .glass-effect nav');
+            navbars.forEach(navbar => {
+                navbar.classList.remove('hidden');
+                navbar.classList.add('visible');
+            });
+            this.isNavVisible = true;
+        }
+    }
+
+    toggleMobileMenu() {
+        const mobileMenu = document.getElementById('mobileNavMenu');
+        if (mobileMenu) {
+            if (this.isMobileMenuOpen) {
+                this.closeMobileMenu();
+            } else {
+                this.openMobileMenu();
+            }
+        }
+    }
+
+    openMobileMenu() {
+        const mobileMenu = document.getElementById('mobileNavMenu');
+        if (mobileMenu) {
+            mobileMenu.classList.add('open');
+            this.isMobileMenuOpen = true;
+            
+            // Update toggle button icon
+            const toggleButton = document.querySelector('.mobile-menu-toggle');
+            if (toggleButton) {
+                toggleButton.innerHTML = `
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                `;
+            }
+        }
+    }
+
+    closeMobileMenu() {
+        const mobileMenu = document.getElementById('mobileNavMenu');
+        if (mobileMenu) {
+            mobileMenu.classList.remove('open');
+            this.isMobileMenuOpen = false;
+            
+            // Update toggle button icon
+            const toggleButton = document.querySelector('.mobile-menu-toggle');
+            if (toggleButton) {
+                toggleButton.innerHTML = `
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                `;
+            }
+        }
+    }
+
+    // Public methods for external use
+    forceShowNav() {
+        this.showNavbar();
+    }
+
+    forceHideNav() {
+        this.hideNavbar();
+    }
+}
+
 // Make Utils available globally
 window.Utils = Utils;
+window.MobileNavManager = MobileNavManager;
 
 export default Utils;
