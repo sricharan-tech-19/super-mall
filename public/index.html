@@ -204,9 +204,15 @@
     <script type="module">
         console.log('🚀 SUPER MALL - LANDING PAGE INITIALIZED');
 
+        // Initialize mobile navigation
+        let mobileNavManager;
+        
         // Wait for DOM to be fully loaded
         document.addEventListener('DOMContentLoaded', function() {
             console.log('📄 DOM Content Loaded');
+            
+            // Initialize mobile navigation manager
+            mobileNavManager = new MobileNavManager();
             
             // Get all required elements
             const getStartedBtn = document.getElementById('getStartedBtn');
