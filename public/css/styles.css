@@ -101,6 +101,87 @@ body {
     position: sticky;
     top: 0;
     z-index: 100;
+    transition: transform 0.3s ease-in-out;
+}
+
+/* Mobile Navigation Auto-Hide */
+@media (max-width: 768px) {
+    .navbar {
+        position: fixed;
+        width: 100%;
+        transform: translateY(0);
+    }
+    
+    .navbar.hidden {
+        transform: translateY(-100%);
+    }
+    
+    .navbar.visible {
+        transform: translateY(0);
+    }
+    
+    /* Add padding to body to compensate for fixed navbar */
+    body.mobile-nav-active {
+        padding-top: 64px;
+    }
+    
+    /* Mobile menu toggle button */
+    .mobile-menu-toggle {
+        display: block;
+        background: none;
+        border: none;
+        color: white;
+        font-size: 1.5rem;
+        cursor: pointer;
+        padding: 8px;
+        border-radius: 4px;
+        transition: background-color 0.3s ease;
+    }
+    
+    .mobile-menu-toggle:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    /* Hide desktop navigation items on mobile */
+    .desktop-nav {
+        display: none;
+    }
+    
+    /* Mobile navigation menu */
+    .mobile-nav-menu {
+        position: fixed;
+        top: 64px;
+        left: 0;
+        right: 0;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(16px);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        transform: translateY(-100%);
+        transition: transform 0.3s ease-in-out;
+        z-index: 99;
+    }
+    
+    .mobile-nav-menu.open {
+        transform: translateY(0);
+    }
+    
+    .mobile-nav-item {
+        display: block;
+        padding: 16px 20px;
+        color: #374151;
+        text-decoration: none;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        transition: background-color 0.3s ease;
+    }
+    
+    .mobile-nav-item:hover {
+        background-color: rgba(102, 126, 234, 0.1);
+        color: #667eea;
+    }
+    
+    .mobile-nav-item:last-child {
+        border-bottom: none;
+    }
 }
 
 .nav-link {
@@ -292,6 +373,7 @@ body {
     
     .sidebar {
         transform: translateX(-100%);
+        z-index: 98;
     }
     
     .sidebar.open {
@@ -300,6 +382,47 @@ body {
     
     .grid {
         gap: 16px;
+    }
+    
+    /* Mobile-specific adjustments */
+    .main-content {
+        padding-top: 80px;
+    }
+    
+    /* Ensure modals appear above mobile nav */
+    .modal-backdrop {
+        z-index: 100;
+    }
+    
+    /* Mobile dashboard adjustments */
+    .dashboard-header {
+        padding: 16px;
+        margin-top: 64px;
+    }
+    
+    /* Mobile card adjustments */
+    .card {
+        margin-bottom: 16px;
+    }
+    
+    /* Mobile form adjustments */
+    .form-input {
+        font-size: 16px; /* Prevents zoom on iOS */
+    }
+}
+
+/* Desktop navigation styles */
+@media (min-width: 769px) {
+    .mobile-menu-toggle {
+        display: none;
+    }
+    
+    .mobile-nav-menu {
+        display: none;
+    }
+    
+    .desktop-nav {
+        display: flex;
     }
 }
 
